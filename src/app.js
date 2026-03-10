@@ -11,10 +11,13 @@ const authRoutes = require("./routes/authRoute");
 const app = express();
 
 // CORS — cho phép frontend gọi vào (với credentials)
+const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").replace(/\/+$/, ""); // Remove trailing slash
+console.log("🌐 Allowed CORS origin:", clientUrl);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: clientUrl,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true, // Cho phép gửi/nhận cookies
   })
