@@ -11,15 +11,28 @@ const authRoutes = require("./routes/authRoute");
 const app = express();
 
 // CORS — cho phép frontend gọi vào (với credentials)
-const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").replace(/\/+$/, ""); // Remove trailing slash
-console.log("🌐 Allowed CORS origin:", clientUrl);
+const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").replace(/\/+$/, "");
+
+const allowedOrigins = [
+  clientUrl,
+  "https://car-rental.trantuanhiep.site",
+  "http://car-rental.trantuanhiep.site"
+];
+
+console.log("🌐 Allowed CORS origins:", allowedOrigins);
 
 app.use(
   cors({
-    origin: clientUrl,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // Cho phép gửi/nhận cookies
+    credentials: true
   })
 );
 
