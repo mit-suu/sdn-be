@@ -15,11 +15,15 @@ const clientUrl = (process.env.CLIENT_URL || "http://localhost:3000").replace(/\
 
 const allowedOrigins = [
   clientUrl,
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173", // Vite
   "https://car-rental.trantuanhiep.site",
   "http://car-rental.trantuanhiep.site"
 ];
 
 console.log("🌐 Allowed CORS origins:", allowedOrigins);
+console.log("✓ CORS: credentials enabled, secure cookies support for production");
 
 app.use(
   cors({
@@ -27,12 +31,14 @@ app.use(
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
+        console.warn(`❌ CORS blocked origin: ${origin}`);
         callback(new Error("Not allowed by CORS"));
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true
+    credentials: true, // CRITICAL: Allow credentials (cookies, auth headers)
+    maxAge: 86400 // 24 hours
   })
 );
 

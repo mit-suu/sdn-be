@@ -14,11 +14,14 @@ const generateRefreshToken = (userId) =>
   });
 
 const setRefreshTokenCookie = (res, token) => {
+  const isProduction = process.env.NODE_ENV === "production";
+  
   res.cookie("refreshToken", token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", // "none" for cross-site cookies in production
+    secure: isProduction, // REQUIRED: Must be true when sameSite is "none"
+    sameSite: isProduction ? "none" : "lax", // "none" for cross-origin in production, "lax" for development
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    path: "/", // Ensure cookie is sent for all paths
   });
 };
 
@@ -134,11 +137,13 @@ const logout = async (req, res) => {
       { refreshToken: null }
     );
 
-    // Xóa cookie
+    // Xóa cookie (MUST match setRefreshTokenCookie options)
+    const isProduction = process.env.NODE_ENV === "production";
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      path: "/",
     });
 
     return res.status(200).json({ message: "Logged out successfully" });
